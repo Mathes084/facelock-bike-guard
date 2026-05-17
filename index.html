@@ -72,18 +72,65 @@ canvas{display:block}
 .sensor-val{font-size:13px;font-weight:600}
 .progress-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:4px}
 .progress-fill{height:100%;border-radius:2px;transition:width 0.5s ease}
-.face-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
-.face-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;cursor:pointer;transition:all 0.2s}
+
+/* ─── FACE CARD ─── */
+.face-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.face-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative}
 .face-card:hover{border-color:var(--accent);background:var(--bg4)}
-.face-card.active{border-color:var(--green);background:rgba(0,212,170,0.1)}
-.face-avatar{width:48px;height:48px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700}
-.face-name{font-size:11px;font-weight:600}
+.face-card.active{border-color:var(--green);background:rgba(0,212,170,0.08)}
+.face-card.selected-for-scan{border-color:var(--blue);background:rgba(0,153,255,0.08)}
+.face-avatar{width:56px;height:56px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;overflow:hidden;border:2px solid var(--border)}
+.face-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.face-name{font-size:12px;font-weight:600}
 .face-role{font-size:10px;color:var(--text2);margin-top:2px}
-.scan-area{background:var(--bg3);border-radius:10px;border:2px dashed var(--border);height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;position:relative;overflow:hidden}
+.face-card-actions{display:flex;gap:4px;margin-top:8px;justify-content:center}
+.fc-btn{font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;border:none;font-weight:600;transition:all 0.2s}
+.fc-btn.edit{background:rgba(0,153,255,0.2);color:var(--blue);border:1px solid rgba(0,153,255,0.3)}
+.fc-btn.del{background:rgba(255,71,87,0.15);color:var(--red);border:1px solid rgba(255,71,87,0.25)}
+.fc-btn.scan{background:rgba(0,212,170,0.2);color:var(--green);border:1px solid rgba(0,212,170,0.3)}
+
+/* ─── SCAN AREA ─── */
+.scan-area{background:var(--bg3);border-radius:10px;border:2px dashed var(--border);height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;position:relative;overflow:hidden;transition:border-color 0.3s}
 .scan-line{position:absolute;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scan 2s linear infinite;display:none}
 @keyframes scan{0%{top:0}100%{top:100%}}
 .scan-area.scanning .scan-line{display:block}
 .scan-area.scanning{border-color:var(--accent)}
+
+/* ─── CAMERA MODAL ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn 0.2s ease}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:420px;overflow:hidden}
+.modal-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:14px;font-weight:700}
+.modal-close{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:2px 6px;border-radius:4px;transition:color 0.2s}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:16px}
+.modal-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+#cameraVideo{width:100%;border-radius:8px;background:#000;display:block;max-height:260px;object-fit:cover}
+#cameraCanvas{display:none}
+.input-group{margin-bottom:12px}
+.input-label{font-size:11px;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600}
+.input-field{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;outline:none;transition:border-color 0.2s}
+.input-field:focus{border-color:var(--accent)}
+.select-field{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:13px;outline:none;cursor:pointer}
+.photo-preview{width:80px;height:80px;border-radius:50%;border:2px dashed var(--border);overflow:hidden;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;background:var(--bg3);font-size:28px;cursor:pointer;transition:border-color 0.3s}
+.photo-preview:hover{border-color:var(--accent)}
+.photo-preview img{width:100%;height:100%;object-fit:cover}
+.upload-zone{border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg3)}
+.upload-zone:hover{border-color:var(--accent);background:rgba(0,212,170,0.05)}
+.upload-zone.drag-over{border-color:var(--accent);background:rgba(0,212,170,0.1)}
+
+/* ─── VERIFY SECTION ─── */
+.verify-split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.verify-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.verify-img{width:100%;height:150px;border-radius:8px;object-fit:cover;background:var(--bg4);display:block;border:1px solid var(--border)}
+.verify-img-placeholder{width:100%;height:150px;border-radius:8px;background:var(--bg4);border:2px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all 0.2s}
+.verify-img-placeholder:hover{border-color:var(--accent)}
+.result-banner{border-radius:10px;padding:16px;text-align:center;margin-bottom:10px;display:none;animation:fadeIn 0.4s ease}
+.result-banner.match{background:rgba(0,212,170,0.12);border:2px solid rgba(0,212,170,0.4)}
+.result-banner.nomatch{background:rgba(255,71,87,0.12);border:2px solid rgba(255,71,87,0.4)}
+.result-banner.unknown{background:rgba(255,165,2,0.12);border:2px solid rgba(255,165,2,0.4)}
+
+/* ─── MISC ─── */
 .log-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
 .log-item:last-child{border-bottom:none}
 .log-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
@@ -103,10 +150,17 @@ input:checked+.slider:before{transform:translateX(18px);background:var(--green)}
 .fin-row:last-child{border-bottom:none}
 .fin-label{color:var(--text2)}
 .fin-val{font-weight:600}
+.add-user-btn{width:100%;padding:10px;border-radius:8px;background:rgba(0,212,170,0.1);border:2px dashed rgba(0,212,170,0.3);color:var(--green);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-bottom:10px}
+.add-user-btn:hover{background:rgba(0,212,170,0.2);border-color:rgba(0,212,170,0.5)}
+.cam-controls{display:flex;gap:8px;margin-top:10px;justify-content:center}
+.snap-preview{width:100%;max-height:200px;object-fit:cover;border-radius:8px;display:none;border:2px solid var(--green);margin-top:8px}
+.verify-upload-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:100%;height:150px;background:var(--bg4);border:2px dashed var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s;color:var(--text2);font-size:11px}
+.verify-upload-btn:hover{border-color:var(--accent);color:var(--accent)}
 @media(max-width:600px){
   .grid4{grid-template-columns:repeat(2,1fr)}
   .grid2{grid-template-columns:1fr}
   .face-grid{grid-template-columns:repeat(2,1fr)}
+  .verify-split{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -224,7 +278,7 @@ input:checked+.slider:before{transform:translateX(18px);background:var(--green)}
       <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center"><div style="font-size:20px;margin-bottom:4px">📶</div><div style="font-size:11px;font-weight:600">SIM800L GSM</div><div class="badge green" style="font-size:10px;margin-top:4px">ONLINE</div><div style="font-size:10px;color:var(--text2);margin-top:4px">Network: 4G</div></div>
       <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center"><div style="font-size:20px;margin-bottom:4px">🔧</div><div style="font-size:11px;font-weight:600">SW-420 Vibration</div><div class="badge green" style="font-size:10px;margin-top:4px">ARMED</div><div style="font-size:10px;color:var(--text2);margin-top:4px" id="vibSensVal">0.0g</div></div>
       <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center"><div style="font-size:20px;margin-bottom:4px">🖥</div><div style="font-size:11px;font-weight:600">ESP32/Arduino</div><div class="badge green" style="font-size:10px;margin-top:4px">RUNNING</div><div style="font-size:10px;color:var(--text2);margin-top:4px">Loop: 50ms</div></div>
-      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center"><div style="font-size:20px;margin-bottom:4px">👤</div><div style="font-size:11px;font-weight:600">Face Module</div><div class="badge green" style="font-size:10px;margin-top:4px">READY</div><div style="font-size:10px;color:var(--text2);margin-top:4px">3 faces stored</div></div>
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center"><div style="font-size:20px;margin-bottom:4px">👤</div><div style="font-size:11px;font-weight:600">Face Module</div><div class="badge green" style="font-size:10px;margin-top:4px">READY</div><div style="font-size:10px;color:var(--text2);margin-top:4px" id="faceModCount">3 faces stored</div></div>
       <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center"><div style="font-size:20px;margin-bottom:4px">🔋</div><div style="font-size:11px;font-weight:600">LiPo Battery</div><div class="badge yellow" style="font-size:10px;margin-top:4px">82%</div><div style="font-size:10px;color:var(--text2);margin-top:4px">~18h left</div></div>
     </div>
   </div>
@@ -232,42 +286,59 @@ input:checked+.slider:before{transform:translateX(18px);background:var(--green)}
 
 <!-- FACELOCK -->
 <div id="tab-facelock" class="tab">
+
+  <!-- VERIFY SECTION -->
   <div class="card" style="margin-bottom:10px">
-    <div class="card-title">Face Scan — Identify Rider</div>
-    <div class="scan-area" id="scanArea">
-      <div class="scan-line"></div>
-      <div style="font-size:40px" id="scanIcon">👤</div>
-      <div style="font-size:13px;color:var(--text2)" id="scanText">Select a profile below then press Scan</div>
-      <div id="scanResult" style="font-size:16px;font-weight:700;display:none;text-align:center"></div>
+    <div class="card-title" style="margin-bottom:10px">🔍 Face Verification — Upload or Capture to Verify</div>
+    <div id="resultBanner" class="result-banner">
+      <div id="resultIcon" style="font-size:36px;margin-bottom:6px"></div>
+      <div id="resultTitle" style="font-size:16px;font-weight:700"></div>
+      <div id="resultSub" style="font-size:12px;color:var(--text2);margin-top:4px"></div>
     </div>
-    <div style="display:flex;gap:8px">
-      <button class="sim-btn green" style="flex:1" onclick="startScan()">🔍 Start Face Scan</button>
-      <button class="sim-btn red" onclick="scanUnknown()">⚠️ Unknown Face</button>
+    <div class="verify-split">
+      <div class="verify-box">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;font-weight:600">📁 Registered Photo</div>
+        <div id="regPhotoWrap">
+          <img id="regPhotoImg" src="" alt="" style="display:none;width:100%;height:150px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">
+          <div id="regPhotoPlaceholder" style="width:100%;height:150px;border-radius:8px;background:var(--bg4);border:2px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--text2);font-size:11px">
+            <div style="font-size:28px">🖼️</div>
+            <div>Select a user below</div>
+            <div style="font-size:10px">to load their photo</div>
+          </div>
+        </div>
+        <div id="regPhotoName" style="font-size:12px;font-weight:600;margin-top:8px;color:var(--text2)">—</div>
+      </div>
+      <div class="verify-box">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;font-weight:600">📷 Photo to Verify</div>
+        <div id="verifyPhotoWrap">
+          <img id="verifyPhotoImg" src="" alt="" style="display:none;width:100%;height:150px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">
+          <label id="verifyUploadZone" class="verify-upload-btn" for="verifyFileInput">
+            <div style="font-size:28px">📤</div>
+            <div style="font-weight:600">Upload Photo</div>
+            <div style="font-size:10px">or use camera below</div>
+          </label>
+          <input type="file" id="verifyFileInput" accept="image/*" style="display:none" onchange="loadVerifyPhoto(event)">
+        </div>
+        <div style="font-size:10px;color:var(--text2);margin-top:8px">Upload or capture a photo to check</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="sim-btn blue" onclick="openCameraModal('verify')" style="flex:1">📷 Use Camera</button>
+      <button class="sim-btn green" onclick="runVerification()" style="flex:1">🔍 Verify Face</button>
+      <button class="sim-btn gray" onclick="clearVerify()">✕ Clear</button>
     </div>
   </div>
+
+  <!-- REGISTERED USERS -->
   <div class="card" style="margin-bottom:10px">
-    <div class="card-title">Authorized Users (3 registered)</div>
-    <div class="face-grid">
-      <div class="face-card active" id="face0" onclick="selectFace(0)">
-        <div class="face-avatar" style="background:rgba(0,212,170,0.2);color:var(--green)">HS</div>
-        <div class="face-name">Harish S</div>
-        <div class="face-role">Owner</div>
-        <div class="badge green" style="margin-top:6px;font-size:9px">ACTIVE</div>
-      </div>
-      <div class="face-card" id="face1" onclick="selectFace(1)">
-        <div class="face-avatar" style="background:rgba(0,153,255,0.2);color:var(--blue)">ME</div>
-        <div class="face-name">Matheswaran E</div>
-        <div class="face-role">Team Member</div>
-        <div class="badge blue" style="margin-top:6px;font-size:9px">ACTIVE</div>
-      </div>
-      <div class="face-card" id="face2" onclick="selectFace(2)">
-        <div class="face-avatar" style="background:rgba(255,165,2,0.2);color:var(--yellow)">ST</div>
-        <div class="face-name">Siva Tharun R</div>
-        <div class="face-role">Team Member</div>
-        <div class="badge yellow" style="margin-top:6px;font-size:9px">ACTIVE</div>
-      </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="card-title" style="margin-bottom:0">👥 Authorized Users (<span id="userCountLabel">3</span> registered)</div>
+      <button class="sim-btn green" style="font-size:11px;padding:5px 12px" onclick="openAddUser()">+ Add User</button>
     </div>
+    <div class="face-grid" id="faceGrid"></div>
   </div>
+
+  <!-- FACE LOG -->
   <div class="card">
     <div class="card-title">Face Scan History</div>
     <div id="faceLog">
@@ -351,23 +422,436 @@ input:checked+.slider:before{transform:translateX(18px);background:var(--green)}
     <div class="card-title">Device Info</div>
     <div class="fin-row"><span class="fin-label">Device ID</span><span class="fin-val">MSH-BG-2026-001</span></div>
     <div class="fin-row"><span class="fin-label">Firmware</span><span class="fin-val">v2.0.1</span></div>
-    <div class="fin-row"><span class="fin-label">Owner</span><span class="fin-val">Harish S</span></div>
+    <div class="fin-row"><span class="fin-label">Owner</span><span class="fin-val" id="ownerLabel">Harish S</span></div>
     <div class="fin-row"><span class="fin-label">Registered</span><span class="fin-val">May 2026</span></div>
     <div class="fin-row"><span class="fin-label">Subscription</span><span class="fin-val"><span class="badge green">ACTIVE</span></span></div>
   </div>
 </div>
 
+</div><!-- end content -->
+</div><!-- end app -->
+
+<!-- ═══════════════ ADD / EDIT USER MODAL ═══════════════ -->
+<div id="userModal" class="modal-overlay" style="display:none" onclick="closeModalOutside(event,'userModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="userModalTitle">➕ Add New User</div>
+      <button class="modal-close" onclick="closeModal('userModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align:center;margin-bottom:14px">
+        <div class="photo-preview" id="previewCircle" onclick="document.getElementById('profileFileInput').click()">
+          <span id="previewPlaceholder" style="font-size:28px">📸</span>
+          <img id="previewImg" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%">
+        </div>
+        <div style="font-size:10px;color:var(--text2);margin-top:4px">Tap to change photo</div>
+        <input type="file" id="profileFileInput" accept="image/*" style="display:none" onchange="loadProfilePhoto(event)">
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px">
+        <button class="sim-btn blue" style="font-size:11px" onclick="openCameraModal('profile')">📷 Take Photo</button>
+        <button class="sim-btn gray" style="font-size:11px" onclick="document.getElementById('profileFileInput').click()">📁 Upload File</button>
+      </div>
+      <div class="input-group">
+        <div class="input-label">Full Name *</div>
+        <input class="input-field" id="userNameInput" type="text" placeholder="e.g. Harish S" maxlength="30">
+      </div>
+      <div class="input-group">
+        <div class="input-label">Role</div>
+        <select class="select-field" id="userRoleInput">
+          <option value="Owner">Owner</option>
+          <option value="Team Member" selected>Team Member</option>
+          <option value="Family">Family</option>
+          <option value="Trusted Friend">Trusted Friend</option>
+        </select>
+      </div>
+      <div class="input-group" style="margin-bottom:0">
+        <div class="input-label">Phone Number</div>
+        <input class="input-field" id="userPhoneInput" type="tel" placeholder="+91-XXXXXXXXXX" maxlength="15">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="sim-btn gray" onclick="closeModal('userModal')">Cancel</button>
+      <button class="sim-btn green" onclick="saveUser()">💾 Save User</button>
+    </div>
+  </div>
 </div>
+
+<!-- ═══════════════ CAMERA MODAL ═══════════════ -->
+<div id="cameraModal" class="modal-overlay" style="display:none" onclick="closeModalOutside(event,'cameraModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📷 Camera Capture</div>
+      <button class="modal-close" onclick="closeCamera()">✕</button>
+    </div>
+    <div class="modal-body">
+      <video id="cameraVideo" autoplay playsinline muted></video>
+      <canvas id="cameraCanvas" style="display:none"></canvas>
+      <img id="snapPreview" class="snap-preview" alt="Captured photo">
+      <div style="font-size:11px;color:var(--text2);text-align:center;margin-top:8px" id="camStatus">📷 Camera ready — press Capture</div>
+    </div>
+    <div class="modal-footer">
+      <button class="sim-btn gray" onclick="closeCamera()">Cancel</button>
+      <button class="sim-btn yellow" id="retakeBtn" style="display:none" onclick="retakePhoto()">🔄 Retake</button>
+      <button class="sim-btn blue" id="captureBtn" onclick="capturePhoto()">📸 Capture</button>
+      <button class="sim-btn green" id="usePhotoBtn" style="display:none" onclick="usePhoto()">✅ Use Photo</button>
+    </div>
+  </div>
 </div>
 
 <script>
-let alertCount=0,selectedFace=0,smsCount=0;
-const faces=[
-  {name:'Harish S',role:'Owner',init:'HS',color:'var(--green)'},
-  {name:'Matheswaran E',role:'Team Member',init:'ME',color:'var(--blue)'},
-  {name:'Siva Tharun R',role:'Team Member',init:'ST',color:'var(--yellow)'}
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let alertCount=0, smsCount=0;
+let editingIndex=-1;
+let cameraTarget='profile'; // 'profile' or 'verify'
+let currentStream=null;
+let capturedDataURL=null;
+let verifyPhotoDataURL=null;
+
+let users=[
+  {name:'Harish S',role:'Owner',phone:'+91-9XXXXXXXXX',photo:null,color:'var(--green)',initials:'HS'},
+  {name:'Matheswaran E',role:'Team Member',phone:'',photo:null,color:'var(--blue)',initials:'ME'},
+  {name:'Siva Tharun R',role:'Team Member',phone:'',photo:null,color:'var(--yellow)',initials:'ST'}
 ];
 
+const colorCycle=['var(--green)','var(--blue)','var(--yellow)','var(--accent2)'];
+
+function getInitials(name){
+  return name.trim().split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
+}
+
+// ═══════════════════════════════════════════
+// RENDER FACE GRID
+// ═══════════════════════════════════════════
+function renderFaceGrid(){
+  const grid=document.getElementById('faceGrid');
+  document.getElementById('userCountLabel').textContent=users.length;
+  document.getElementById('faceModCount').textContent=users.length+' faces stored';
+  if(users.length>0) document.getElementById('ownerLabel').textContent=users[0].name;
+  grid.innerHTML='';
+  users.forEach((u,i)=>{
+    const card=document.createElement('div');
+    card.className='face-card'+(i===0?' active':'');
+    card.id='face'+i;
+    card.onclick=()=>selectFace(i);
+
+    const avatarHTML=u.photo
+      ?`<img src="${u.photo}" alt="${u.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+      :`<span style="color:${u.color};font-size:16px;font-weight:700">${u.initials}</span>`;
+
+    const roleColor=u.role==='Owner'?'var(--green)':u.role==='Family'?'var(--yellow)':'var(--blue)';
+    const badgeClass=u.role==='Owner'?'green':u.role==='Family'?'yellow':'blue';
+
+    card.innerHTML=`
+      <div class="face-avatar" style="background:${u.photo?'transparent':'rgba(0,0,0,0.3)'};">${avatarHTML}</div>
+      <div class="face-name">${escHtml(u.name)}</div>
+      <div class="face-role">${escHtml(u.role)}</div>
+      <div class="badge ${badgeClass}" style="margin-top:6px;font-size:9px">ACTIVE</div>
+      <div class="face-card-actions">
+        <button class="fc-btn scan" onclick="event.stopPropagation();selectFaceForVerify(${i})">🔍</button>
+        <button class="fc-btn edit" onclick="event.stopPropagation();openEditUser(${i})">✏️</button>
+        <button class="fc-btn del" onclick="event.stopPropagation();deleteUser(${i})">🗑️</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ═══════════════════════════════════════════
+// SELECT FACE FOR VERIFY
+// ═══════════════════════════════════════════
+let selectedFaceIdx=0;
+function selectFace(i){
+  selectedFaceIdx=i;
+  document.querySelectorAll('.face-card').forEach((c,j)=>c.classList.toggle('active',i===j));
+}
+
+function selectFaceForVerify(i){
+  selectedFaceIdx=i;
+  const u=users[i];
+  // show their photo in "registered" panel
+  const regImg=document.getElementById('regPhotoImg');
+  const regPlaceholder=document.getElementById('regPhotoPlaceholder');
+  const regName=document.getElementById('regPhotoName');
+  if(u.photo){
+    regImg.src=u.photo;
+    regImg.style.display='block';
+    regPlaceholder.style.display='none';
+  } else {
+    regImg.style.display='none';
+    regPlaceholder.style.display='flex';
+    regPlaceholder.innerHTML=`<div style="width:56px;height:56px;border-radius:50%;background:var(--bg3);border:2px solid ${u.color};display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:${u.color}">${u.initials}</div><div style="font-size:11px;margin-top:6px">${escHtml(u.name)}</div><div style="font-size:10px;color:var(--text2)">No photo registered</div>`;
+  }
+  regName.innerHTML=`<span style="font-weight:700">${escHtml(u.name)}</span> <span class="badge ${u.role==='Owner'?'green':'blue'}" style="font-size:9px">${escHtml(u.role)}</span>`;
+  selectFace(i);
+  clearResult();
+  // scroll to verify area
+  document.getElementById('tab-facelock').scrollTop=0;
+}
+
+// ═══════════════════════════════════════════
+// VERIFY
+// ═══════════════════════════════════════════
+function loadVerifyPhoto(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    verifyPhotoDataURL=e.target.result;
+    showVerifyPhoto(verifyPhotoDataURL);
+  };
+  reader.readAsDataURL(file);
+}
+
+function showVerifyPhoto(src){
+  const img=document.getElementById('verifyPhotoImg');
+  const zone=document.getElementById('verifyUploadZone');
+  img.src=src;
+  img.style.display='block';
+  zone.style.display='none';
+  clearResult();
+}
+
+function clearVerify(){
+  verifyPhotoDataURL=null;
+  document.getElementById('verifyPhotoImg').style.display='none';
+  document.getElementById('verifyUploadZone').style.display='flex';
+  document.getElementById('verifyFileInput').value='';
+  clearResult();
+}
+
+function clearResult(){
+  const b=document.getElementById('resultBanner');
+  b.style.display='none';
+  b.className='result-banner';
+}
+
+function runVerification(){
+  const u=users[selectedFaceIdx];
+  if(!verifyPhotoDataURL){
+    showToast('Please upload or capture a photo to verify!','warn');return;
+  }
+  // show scanning animation
+  const banner=document.getElementById('resultBanner');
+  banner.className='result-banner info';
+  banner.style.display='block';
+  banner.innerHTML=`<div style="font-size:28px;margin-bottom:6px;animation:pulse 0.8s infinite">🔍</div><div style="font-weight:700;font-size:14px">Scanning…</div><div style="font-size:11px;color:var(--text2);margin-top:4px">Comparing faces, please wait</div>`;
+
+  setTimeout(()=>{
+    // Simulate: if registered user has a photo → random high-confidence match,
+    // otherwise simulate with probability
+    const hasRegPhoto=!!u.photo;
+    const confidence=(Math.random()*8+91).toFixed(1); // 91–99%
+    const isMatch=hasRegPhoto
+      ? (Math.random()>0.2) // 80% match if both have photos
+      : (Math.random()>0.5); // 50% if no registered photo
+
+    if(isMatch){
+      banner.className='result-banner match';
+      document.getElementById('resultBanner').innerHTML=`
+        <div style="font-size:36px;margin-bottom:6px">✅</div>
+        <div style="font-size:16px;font-weight:700;color:var(--green)">AUTHORIZED</div>
+        <div style="font-size:13px;font-weight:600;margin-top:4px">${escHtml(u.name)}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:4px">Confidence: ${confidence}% • Role: ${escHtml(u.role)}</div>`;
+      addFaceLog(u.name,'AUTHORIZED','var(--green)');
+      addActivity(`✅ <strong>${escHtml(u.name)}</strong> verified via face scan — Access granted`,'var(--green)');
+      document.getElementById('faceAuth').innerHTML='<span class="badge green">VERIFIED</span>';
+    } else {
+      banner.className='result-banner nomatch';
+      document.getElementById('resultBanner').innerHTML=`
+        <div style="font-size:36px;margin-bottom:6px">❌</div>
+        <div style="font-size:16px;font-weight:700;color:var(--red)">NOT MATCHED</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px">Face does not match <strong>${escHtml(u.name)}</strong></div>
+        <div style="font-size:11px;color:var(--text2);margin-top:4px">Confidence: ${(Math.random()*20+10).toFixed(1)}% — Access denied</div>`;
+      addFaceLog('Unknown','UNAUTHORIZED','var(--red)');
+      addActivity('🚨 Face mismatch — Unauthorized access attempt','var(--red)');
+      document.getElementById('faceAuth').innerHTML='<span class="badge red">UNKNOWN</span>';
+    }
+  },2000);
+}
+
+function addFaceLog(name,status,color){
+  const fl=document.getElementById('faceLog');
+  const t=now();
+  const d=document.createElement('div');d.className='log-item';
+  d.innerHTML=`<div class="log-dot" style="background:${color}"></div><div class="log-time">${t}</div><div>${escHtml(name)} — <span style="color:${color}">${status}</span> — ${status==='AUTHORIZED'?'Access granted':'Access denied'}</div>`;
+  fl.prepend(d);
+}
+
+// ═══════════════════════════════════════════
+// ADD / EDIT USER MODAL
+// ═══════════════════════════════════════════
+let pendingProfilePhoto=null;
+
+function openAddUser(){
+  editingIndex=-1;
+  pendingProfilePhoto=null;
+  document.getElementById('userModalTitle').textContent='➕ Add New User';
+  document.getElementById('userNameInput').value='';
+  document.getElementById('userRoleInput').value='Team Member';
+  document.getElementById('userPhoneInput').value='';
+  document.getElementById('previewImg').style.display='none';
+  document.getElementById('previewPlaceholder').style.display='block';
+  openModal('userModal');
+}
+
+function openEditUser(i){
+  editingIndex=i;
+  const u=users[i];
+  pendingProfilePhoto=u.photo||null;
+  document.getElementById('userModalTitle').textContent='✏️ Edit User';
+  document.getElementById('userNameInput').value=u.name;
+  document.getElementById('userRoleInput').value=u.role;
+  document.getElementById('userPhoneInput').value=u.phone||'';
+  if(u.photo){
+    document.getElementById('previewImg').src=u.photo;
+    document.getElementById('previewImg').style.display='block';
+    document.getElementById('previewPlaceholder').style.display='none';
+  } else {
+    document.getElementById('previewImg').style.display='none';
+    document.getElementById('previewPlaceholder').style.display='block';
+  }
+  openModal('userModal');
+}
+
+function loadProfilePhoto(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    pendingProfilePhoto=e.target.result;
+    document.getElementById('previewImg').src=pendingProfilePhoto;
+    document.getElementById('previewImg').style.display='block';
+    document.getElementById('previewPlaceholder').style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveUser(){
+  const name=document.getElementById('userNameInput').value.trim();
+  if(!name){showToast('Please enter a name!','warn');return;}
+  const role=document.getElementById('userRoleInput').value;
+  const phone=document.getElementById('userPhoneInput').value.trim();
+  const initials=getInitials(name);
+  const color=colorCycle[editingIndex>=0?editingIndex%colorCycle.length:users.length%colorCycle.length];
+
+  if(editingIndex>=0){
+    users[editingIndex]={...users[editingIndex],name,role,phone,initials,photo:pendingProfilePhoto,color};
+  } else {
+    users.push({name,role,phone,photo:pendingProfilePhoto,color,initials});
+  }
+  closeModal('userModal');
+  renderFaceGrid();
+  addActivity(`${editingIndex>=0?'✏️ Updated':'➕ Added'} user: <strong>${escHtml(name)}</strong> (${escHtml(role)})`,'var(--blue)');
+  showToast(editingIndex>=0?'User updated!':'User added!','success');
+}
+
+function deleteUser(i){
+  if(users.length<=1){showToast('At least one user must remain!','warn');return;}
+  const name=users[i].name;
+  users.splice(i,1);
+  renderFaceGrid();
+  addActivity(`🗑️ Removed user: <strong>${escHtml(name)}</strong>`,'var(--red)');
+  showToast('User deleted','warn');
+}
+
+// ═══════════════════════════════════════════
+// CAMERA
+// ═══════════════════════════════════════════
+function openCameraModal(target){
+  cameraTarget=target;
+  capturedDataURL=null;
+  document.getElementById('snapPreview').style.display='none';
+  document.getElementById('snapPreview').src='';
+  document.getElementById('cameraVideo').style.display='block';
+  document.getElementById('captureBtn').style.display='inline-block';
+  document.getElementById('retakeBtn').style.display='none';
+  document.getElementById('usePhotoBtn').style.display='none';
+  document.getElementById('camStatus').textContent='📷 Camera ready — press Capture';
+  openModal('cameraModal');
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false})
+    .then(stream=>{
+      currentStream=stream;
+      document.getElementById('cameraVideo').srcObject=stream;
+    })
+    .catch(err=>{
+      document.getElementById('camStatus').textContent='❌ Camera not available: '+err.message;
+      console.warn(err);
+    });
+}
+
+function capturePhoto(){
+  const video=document.getElementById('cameraVideo');
+  const canvas=document.getElementById('cameraCanvas');
+  canvas.width=video.videoWidth||320;
+  canvas.height=video.videoHeight||240;
+  canvas.getContext('2d').drawImage(video,0,0);
+  capturedDataURL=canvas.toDataURL('image/jpeg',0.9);
+  document.getElementById('snapPreview').src=capturedDataURL;
+  document.getElementById('snapPreview').style.display='block';
+  document.getElementById('cameraVideo').style.display='none';
+  document.getElementById('captureBtn').style.display='none';
+  document.getElementById('retakeBtn').style.display='inline-block';
+  document.getElementById('usePhotoBtn').style.display='inline-block';
+  document.getElementById('camStatus').textContent='✅ Photo captured — press Use Photo';
+}
+
+function retakePhoto(){
+  capturedDataURL=null;
+  document.getElementById('snapPreview').style.display='none';
+  document.getElementById('cameraVideo').style.display='block';
+  document.getElementById('captureBtn').style.display='inline-block';
+  document.getElementById('retakeBtn').style.display='none';
+  document.getElementById('usePhotoBtn').style.display='none';
+  document.getElementById('camStatus').textContent='📷 Camera ready — press Capture';
+}
+
+function usePhoto(){
+  if(!capturedDataURL)return;
+  if(cameraTarget==='profile'){
+    pendingProfilePhoto=capturedDataURL;
+    document.getElementById('previewImg').src=capturedDataURL;
+    document.getElementById('previewImg').style.display='block';
+    document.getElementById('previewPlaceholder').style.display='none';
+    closeCamera();
+    // camera modal closes; user modal stays open
+  } else {
+    // verify target
+    verifyPhotoDataURL=capturedDataURL;
+    showVerifyPhoto(capturedDataURL);
+    closeCamera();
+  }
+}
+
+function closeCamera(){
+  if(currentStream){currentStream.getTracks().forEach(t=>t.stop());currentStream=null;}
+  document.getElementById('cameraModal').style.display='none';
+}
+
+// ═══════════════════════════════════════════
+// MODAL HELPERS
+// ═══════════════════════════════════════════
+function openModal(id){document.getElementById(id).style.display='flex';}
+function closeModal(id){document.getElementById(id).style.display='none';}
+function closeModalOutside(e,id){if(e.target.id===id)closeModal(id);}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+function showToast(msg,type){
+  const t=document.createElement('div');
+  const colors={success:'var(--green)',warn:'var(--yellow)',danger:'var(--red)'};
+  t.style.cssText=`position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid ${colors[type]||'var(--border)'};color:${colors[type]||'var(--text)'};padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;z-index:9999;animation:fadeIn 0.2s ease;white-space:nowrap`;
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
+}
+
+// ═══════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════
 function showTab(t,btn){
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
@@ -376,22 +860,28 @@ function showTab(t,btn){
   if(t==='tracking'){setTimeout(()=>drawMap('trackCanvas'),50);}
 }
 
+// ═══════════════════════════════════════════
+// SIMULATION
+// ═══════════════════════════════════════════
 function log(msg,color){
   const c=document.getElementById('simConsole');
   const d=document.createElement('div');
   d.style.color=color||'var(--text)';
-  const now=new Date();
-  d.textContent='['+now.toTimeString().slice(0,8)+'] '+msg;
+  const t=new Date().toTimeString().slice(0,8);
+  d.textContent='['+t+'] '+msg;
   c.appendChild(d);c.scrollTop=c.scrollHeight;
 }
 
 function addActivity(msg,color){
   const l=document.getElementById('activityLog');
-  const now=new Date();
-  const t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
   const d=document.createElement('div');d.className='log-item';
-  d.innerHTML='<div class="log-dot" style="background:'+color+'"></div><div class="log-time">'+t+'</div><div>'+msg+'</div>';
+  d.innerHTML=`<div class="log-dot" style="background:${color}"></div><div class="log-time">${now()}</div><div>${msg}</div>`;
   l.prepend(d);
+}
+
+function now(){
+  const d=new Date();
+  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
 }
 
 function addAlert(type,icon,title,msg,color){
@@ -400,7 +890,7 @@ function addAlert(type,icon,title,msg,color){
   const feed=document.getElementById('alertsFeed');
   const d=document.createElement('div');d.className='alert-box '+type;
   const t=new Date().toLocaleTimeString();
-  d.innerHTML='<div class="alert-icon">'+icon+'</div><div class="alert-body"><div class="alert-title" style="color:'+color+'">'+title+'</div><div class="alert-msg">'+msg+'</div><div class="alert-time">Today, '+t+'</div></div>';
+  d.innerHTML=`<div class="alert-icon">${icon}</div><div class="alert-body"><div class="alert-title" style="color:${color}">${title}</div><div class="alert-msg">${msg}</div><div class="alert-time">Today, ${t}</div></div>`;
   feed.prepend(d);
 }
 
@@ -410,7 +900,7 @@ function addSMS(to,body){
   if(smsCount===1)l.innerHTML='';
   const d=document.createElement('div');d.className='sms-card';
   const t=new Date().toLocaleTimeString();
-  d.innerHTML='<div class="sms-to">📱 To: '+to+'</div><div class="sms-body">'+body+'</div><div class="sms-time">'+t+'</div>';
+  d.innerHTML=`<div class="sms-to">📱 To: ${to}</div><div class="sms-body">${body}</div><div class="sms-time">${t}</div>`;
   l.prepend(d);
 }
 
@@ -462,19 +952,20 @@ function simTamper(){
 }
 
 function simAuthorized(){
+  const owner=users[0]?users[0].name:'Owner';
   log('🔍 Face scan initiated...','var(--blue)');
   setTimeout(()=>{
-    log('✅ Face RECOGNIZED: Harish S (98.4% match)','var(--green)');
+    log('✅ Face RECOGNIZED: '+owner+' (98.4% match)','var(--green)');
     log('🔓 System disarming — Authorized rider','var(--green)');
     setVib(0.2);
     document.getElementById('bikeStatus').textContent='UNLOCKED';
     document.getElementById('bikeStatus').className='metric blue';
     document.getElementById('faceAuth').innerHTML='<span class="badge green">VERIFIED</span>';
     document.getElementById('motionSensor').innerHTML='<span class="badge green">NONE</span>';
-    document.getElementById('topStatus').textContent='UNLOCKED • Harish S';
+    document.getElementById('topStatus').textContent='UNLOCKED • '+owner;
     document.getElementById('mapStatus').textContent='🔓 Unlocked';
-    addAlert('success','✅','Authorized Access','Harish S verified (98.4%). Bike unlocked.','var(--green)');
-    addActivity('✅ <strong>Harish S</strong> verified — Access granted','var(--green)');
+    addAlert('success','✅','Authorized Access',owner+' verified (98.4%). Bike unlocked.','var(--green)');
+    addActivity('✅ <strong>'+escHtml(owner)+'</strong> verified — Access granted','var(--green)');
   },1200);
 }
 
@@ -508,56 +999,14 @@ function simReset(){
   addActivity('🔄 System reset — ARMED','var(--green)');
 }
 
-function selectFace(i){
-  selectedFace=i;
-  document.querySelectorAll('.face-card').forEach((c,j)=>c.classList.toggle('active',i===j));
-}
-
-function startScan(){
-  const area=document.getElementById('scanArea');
-  const icon=document.getElementById('scanIcon');
-  const text=document.getElementById('scanText');
-  const result=document.getElementById('scanResult');
-  area.classList.add('scanning');
-  icon.textContent='📸';text.textContent='Scanning... please look at camera';result.style.display='none';
-  setTimeout(()=>{
-    area.classList.remove('scanning');
-    const f=faces[selectedFace];
-    icon.textContent='✅';text.style.display='none';result.style.display='block';
-    result.innerHTML='<span style="color:var(--green)">'+f.name+'</span><br><span style="font-size:12px;color:var(--text2);font-weight:400">AUTHORIZED • 98.4% confidence</span>';
-    const fl=document.getElementById('faceLog');
-    const t=new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0');
-    const d=document.createElement('div');d.className='log-item';
-    d.innerHTML='<div class="log-dot" style="background:var(--green)"></div><div class="log-time">'+t+'</div><div>'+f.name+' — <span style="color:var(--green)">AUTHORIZED</span> — Access granted</div>';
-    fl.prepend(d);
-  },2000);
-}
-
-function scanUnknown(){
-  const area=document.getElementById('scanArea');
-  const icon=document.getElementById('scanIcon');
-  const text=document.getElementById('scanText');
-  const result=document.getElementById('scanResult');
-  area.classList.add('scanning');
-  icon.textContent='📸';text.textContent='Scanning unknown face...';result.style.display='none';
-  setTimeout(()=>{
-    area.classList.remove('scanning');
-    icon.textContent='❌';text.style.display='none';result.style.display='block';
-    result.innerHTML='<span style="color:var(--red)">UNKNOWN PERSON</span><br><span style="font-size:12px;color:var(--text2);font-weight:400">UNAUTHORIZED — Alert triggered!</span>';
-    simTheft();
-    const fl=document.getElementById('faceLog');
-    const t=new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0');
-    const d=document.createElement('div');d.className='log-item';
-    d.innerHTML='<div class="log-dot" style="background:var(--red)"></div><div class="log-time">'+t+'</div><div><span style="color:var(--red)">UNKNOWN FACE</span> — Unauthorized — Alert sent!</div>';
-    fl.prepend(d);
-  },2000);
-}
-
 function clearAlerts(){
   document.getElementById('alertsFeed').innerHTML='<div style="text-align:center;color:var(--text2);font-size:12px;padding:30px">No alerts</div>';
   alertCount=0;document.getElementById('alertCount').textContent='0';
 }
 
+// ═══════════════════════════════════════════
+// MAP DRAWING
+// ═══════════════════════════════════════════
 function drawMap(id){
   const c=document.getElementById(id);if(!c)return;
   const ctx=c.getContext('2d');
@@ -591,7 +1040,11 @@ function drawMap(id){
   ctx.fillText('Nandambakkam, Chennai',bx,by+35);
 }
 
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
 window.onload=function(){
+  renderFaceGrid();
   drawMap('mapCanvas');
   setInterval(()=>{
     const noise=(Math.random()*0.1).toFixed(2);
