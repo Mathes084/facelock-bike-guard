@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FaceLock Bike Guard — MSH Enterprise</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--bg2:#111827;--bg3:#1a2235;--bg4:#1e2a3f;
+  --accent:#00d4aa;--accent2:#0099ff;--danger:#ff4757;--warn:#ffa502;
+  --text:#e8edf5;--text2:#8fa3c0;--border:#2a3a55;
+  --green:#00d4aa;--red:#ff4757;--blue:#0099ff;--yellow:#ffa502;
+}
+html,body{height:100%;font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+.app{display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:16px;font-weight:700;color:var(--accent);letter-spacing:0.5px}
+.logo span{color:var(--text2);font-weight:400;font-size:12px;margin-left:6px}
+.status-pill{display:flex;align-items:center;gap:6px;font-size:12px;background:var(--bg3);border:1px solid var(--border);padding:4px 10px;border-radius:20px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.nav{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto}
+.nav-btn{padding:10px 16px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;border:none;background:none;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.2s}
+.nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.nav-btn:hover{color:var(--text);background:var(--bg3)}
+.content{flex:1;padding:12px;overflow-y:auto}
+.tab{display:none}
+.tab.active{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px}
+.card-title{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;font-weight:600}
+.metric{font-size:24px;font-weight:700}
+.metric.green{color:var(--green)}
+.metric.red{color:var(--red)}
+.metric.blue{color:var(--blue)}
+.metric.yellow{color:var(--yellow)}
+.metric-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.map-container{background:var(--bg3);border-radius:8px;overflow:hidden;position:relative;height:220px;border:1px solid var(--border)}
+canvas{display:block}
+.map-overlay{position:absolute;top:8px;right:8px;background:rgba(10,14,26,0.85);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:11px}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge.green{background:rgba(0,212,170,0.15);color:var(--green);border:1px solid rgba(0,212,170,0.3)}
+.badge.red{background:rgba(255,71,87,0.15);color:var(--red);border:1px solid rgba(255,71,87,0.3)}
+.badge.yellow{background:rgba(255,165,2,0.15);color:var(--yellow);border:1px solid rgba(255,165,2,0.3)}
+.badge.blue{background:rgba(0,153,255,0.15);color:var(--blue);border:1px solid rgba(0,153,255,0.3)}
+.sim-panel{background:var(--bg3);border-radius:8px;padding:12px;border:1px solid var(--border);margin-bottom:10px}
+.sim-title{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.sim-btns{display:flex;gap:8px;flex-wrap:wrap}
+.sim-btn{padding:8px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s}
+.sim-btn:active{transform:scale(0.97)}
+.sim-btn.green{background:rgba(0,212,170,0.2);color:var(--green);border:1px solid rgba(0,212,170,0.4)}
+.sim-btn.red{background:rgba(255,71,87,0.2);color:var(--red);border:1px solid rgba(255,71,87,0.4)}
+.sim-btn.blue{background:rgba(0,153,255,0.2);color:var(--blue);border:1px solid rgba(0,153,255,0.4)}
+.sim-btn.yellow{background:rgba(255,165,2,0.2);color:var(--yellow);border:1px solid rgba(255,165,2,0.4)}
+.sim-btn.gray{background:var(--bg4);color:var(--text);border:1px solid var(--border)}
+.alert-box{border-radius:8px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.alert-box.danger{background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.3)}
+.alert-box.warn{background:rgba(255,165,2,0.12);border:1px solid rgba(255,165,2,0.3)}
+.alert-box.success{background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3)}
+.alert-box.info{background:rgba(0,153,255,0.12);border:1px solid rgba(0,153,255,0.3)}
+.alert-icon{font-size:16px;margin-top:1px;flex-shrink:0}
+.alert-body{flex:1}
+.alert-title{font-size:12px;font-weight:700}
+.alert-msg{font-size:11px;color:var(--text2);margin-top:2px}
+.alert-time{font-size:10px;color:var(--text2);margin-top:3px}
+.sensor-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.sensor-row:last-child{border-bottom:none}
+.sensor-name{font-size:12px;color:var(--text2)}
+.sensor-val{font-size:13px;font-weight:600}
+.progress-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;border-radius:2px;transition:width 0.5s ease}
+.face-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.face-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;cursor:pointer;transition:all 0.2s}
+.face-card:hover{border-color:var(--accent);background:var(--bg4)}
+.face-card.active{border-color:var(--green);background:rgba(0,212,170,0.1)}
+.face-avatar{width:48px;height:48px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700}
+.face-name{font-size:11px;font-weight:600}
+.face-role{font-size:10px;color:var(--text2);margin-top:2px}
+.scan-area{background:var(--bg3);border-radius:10px;border:2px dashed var(--border);height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;position:relative;overflow:hidden}
+.scan-line{position:absolute;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scan 2s linear infinite;display:none}
+@keyframes scan{0%{top:0}100%{top:100%}}
+.scan-area.scanning .scan-line{display:block}
+.scan-area.scanning{border-color:var(--accent)}
+.log-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.log-item:last-child{border-bottom:none}
+.log-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.log-time{color:var(--text2);font-size:10px;white-space:nowrap;min-width:50px}
+.sms-card{background:var(--bg3);border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid var(--accent)}
+.sms-to{font-size:10px;color:var(--text2);margin-bottom:4px}
+.sms-body{font-size:12px;line-height:1.5}
+.sms-time{font-size:10px;color:var(--text2);margin-top:4px}
+.gear-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.toggle{position:relative;display:inline-block;width:38px;height:20px}
+.toggle input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--bg4);border:1px solid var(--border);border-radius:20px;transition:.3s}
+.slider:before{position:absolute;content:"";height:14px;width:14px;left:2px;bottom:2px;background:var(--text2);border-radius:50%;transition:.3s}
+input:checked+.slider{background:rgba(0,212,170,0.3);border-color:var(--green)}
+input:checked+.slider:before{transform:translateX(18px);background:var(--green)}
+.fin-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.fin-row:last-child{border-bottom:none}
+.fin-label{color:var(--text2)}
+.fin-val{font-weight:600}
+@media(max-width:600px){
+  .grid4{grid-template-columns:repeat(2,1fr)}
+  .grid2{grid-template-columns:1fr}
+  .face-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:8px">
+    <div style="width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">🛡</div>
+    <div>
+      <div class="logo">FaceLock Bike Guard <span>MSH Enterprise</span></div>
+      <div style="font-size:10px;color:var(--text2)">Sri Sai Ram Institute of Technology • 2026</div>
+    </div>
+  </div>
+  <div class="status-pill"><div class="dot"></div><span id="topStatus">ARMED • GPS LOCKED</span></div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="showTab('dashboard',this)">📊 Dashboard</button>
+  <button class="nav-btn" onclick="showTab('simulation',this)">⚡ Simulation</button>
+  <button class="nav-btn" onclick="showTab('facelock',this)">👤 FaceLock</button>
+  <button class="nav-btn" onclick="showTab('alerts',this)">🔔 Alerts</button>
+  <button class="nav-btn" onclick="showTab('tracking',this)">📍 Tracking</button>
+  <button class="nav-btn" onclick="showTab('sms',this)">📱 SMS Log</button>
+  <button class="nav-btn" onclick="showTab('settings',this)">⚙ Settings</button>
+</div>
+
+<div class="content">
+
+<!-- DASHBOARD -->
+<div id="tab-dashboard" class="tab active">
+  <div class="grid4">
+    <div class="card"><div class="card-title">Bike Status</div><div class="metric green" id="bikeStatus">SECURED</div><div class="metric-sub">Engine OFF</div></div>
+    <div class="card"><div class="card-title">GPS Signal</div><div class="metric blue" id="gpsSignal">98%</div><div class="metric-sub" id="gpsCoords">12.9716°N, 80.1594°E</div></div>
+    <div class="card"><div class="card-title">Battery</div><div class="metric yellow" id="battPct">82%</div><div class="metric-sub">Charging</div></div>
+    <div class="card"><div class="card-title">Alerts Today</div><div class="metric red" id="alertCount">0</div><div class="metric-sub">Last: --</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:10px">
+    <div class="card">
+      <div class="card-title">Live Map — Nandambakkam, Chennai</div>
+      <div class="map-container">
+        <canvas id="mapCanvas" width="420" height="220" style="width:100%;height:220px"></canvas>
+        <div class="map-overlay"><span id="mapStatus">📍 Parked • Secured</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Sensor Readings</div>
+      <div class="sensor-row"><span class="sensor-name">Vibration (SW-420)</span><span class="sensor-val green" id="vibSensor">0.0g</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="vibBar" style="width:0%;background:var(--green)"></div></div>
+      <div style="height:8px"></div>
+      <div class="sensor-row"><span class="sensor-name">Motion Detect</span><span class="sensor-val" id="motionSensor"><span class="badge green">NONE</span></span></div>
+      <div class="sensor-row"><span class="sensor-name">GPS Lock</span><span class="sensor-val"><span class="badge green">FIXED</span></span></div>
+      <div class="sensor-row"><span class="sensor-name">GSM Signal</span><span class="sensor-val blue" id="gsmSig">-73 dBm</span></div>
+      <div class="sensor-row"><span class="sensor-name">Temp</span><span class="sensor-val" id="tempVal">34°C</span></div>
+      <div class="sensor-row"><span class="sensor-name">Face Auth</span><span class="sensor-val" id="faceAuth"><span class="badge green">VERIFIED</span></span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Recent Activity Log</div>
+    <div id="activityLog">
+      <div class="log-item"><div class="log-dot" style="background:var(--green)"></div><div class="log-time">09:14 AM</div><div>System armed. Face recognition: <strong>Harish S</strong> verified.</div></div>
+      <div class="log-item"><div class="log-dot" style="background:var(--blue)"></div><div class="log-time">09:12 AM</div><div>GPS lock acquired — 12.9716°N, 80.1594°E</div></div>
+      <div class="log-item"><div class="log-dot" style="background:var(--green)"></div><div class="log-time">09:10 AM</div><div>Device powered ON. All sensors nominal.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SIMULATION -->
+<div id="tab-simulation" class="tab">
+  <div class="sim-panel">
+    <div class="sim-title">🎮 Scenario Simulator — Test all system responses</div>
+    <div class="sim-btns">
+      <button class="sim-btn red" onclick="simTheft()">🚨 Simulate Theft</button>
+      <button class="sim-btn yellow" onclick="simTamper()">⚠️ Simulate Tamper</button>
+      <button class="sim-btn green" onclick="simAuthorized()">✅ Authorized Rider</button>
+      <button class="sim-btn blue" onclick="simGeoFence()">📍 Geofence Breach</button>
+      <button class="sim-btn gray" onclick="simReset()">🔄 Reset System</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+    <div class="card">
+      <div class="card-title">System State Machine</div>
+      <div style="font-size:12px;line-height:1.8">
+        <div style="display:flex;align-items:center;gap:6px;padding:5px;border-radius:6px;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);margin-bottom:4px">
+          <span>●</span><span style="font-weight:600;color:var(--green)">IDLE / ARMED</span><span style="color:var(--text2);font-size:10px">— Waiting for trigger</span>
+        </div>
+        <div style="padding-left:16px;color:var(--text2);font-size:11px">↓ Vibration detected</div>
+        <div style="display:flex;align-items:center;gap:6px;padding:5px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);margin:4px 0">
+          <span>○</span><span>ALERT TRIGGERED</span><span style="color:var(--text2);font-size:10px">— GPS acquire + face check</span>
+        </div>
+        <div style="padding-left:16px;color:var(--text2);font-size:11px">↓ Unauthorized / Timeout</div>
+        <div style="display:flex;align-items:center;gap:6px;padding:5px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);margin:4px 0">
+          <span>○</span><span>SMS ALERT SENT</span><span style="color:var(--text2);font-size:10px">— GSM transmit + buzzer</span>
+        </div>
+        <div style="padding-left:16px;color:var(--text2);font-size:11px">↓ Owner confirms</div>
+        <div style="display:flex;align-items:center;gap:6px;padding:5px;border-radius:6px;background:var(--bg3);border:1px solid var(--border)">
+          <span>○</span><span>TRACKING MODE</span><span style="color:var(--text2);font-size:10px">— Continuous GPS updates</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Live Simulation Console</div>
+      <div id="simConsole" style="font-family:monospace;font-size:11px;line-height:1.7;height:180px;overflow-y:auto;background:var(--bg);padding:8px;border-radius:6px;border:1px solid var(--border)">
+        <div style="color:var(--green)">[BOOT] FaceLock Bike Guard v2.0 initialized</div>
+        <div style="color:var(--accent)">[GPS] Neo-6M locked: 12.9716°N, 80.1594°E</div>
+        <div style="color:var(--blue)">[GSM] SIM800L ready — Signal: -73 dBm</div>
+        <div style="color:var(--green)">[FACE] Recognition model loaded</div>
+        <div style="color:var(--green)">[SYS] System ARMED. Ready.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Hardware Component Status</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center"><div style="font-size:20px;margin-bottom:4px">📡</div><div style="font-size:11px;font-weight:600">Neo-6M GPS</div><div class="badge green" style="font-size:10px;margin-top:4px">ACTIVE</div><div style="font-size:10px;color:var(--text2);margin-top:4px">Accuracy: 1.8m</div></div>
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center"><div style="font-size:20px;margin-bottom:4px">📶</div><div style="font-size:11px;font-weight:600">SIM800L GSM</div><div class="badge green" style="font-size:10px;margin-top:4px">ONLINE</div><div style="font-size:10px;color:var(--text2);margin-top:4px">Network: 4G</div></div>
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center"><div style="font-size:20px;margin-bottom:4px">🔧</div><div style="font-size:11px;font-weight:600">SW-420 Vibration</div><div class="badge green" style="font-size:10px;margin-top:4px">ARMED</div><div style="font-size:10px;color:var(--text2);margin-top:4px" id="vibSensVal">0.0g</div></div>
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center"><div style="font-size:20px;margin-bottom:4px">🖥</div><div style="font-size:11px;font-weight:600">ESP32/Arduino</div><div class="badge green" style="font-size:10px;margin-top:4px">RUNNING</div><div style="font-size:10px;color:var(--text2);margin-top:4px">Loop: 50ms</div></div>
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center"><div style="font-size:20px;margin-bottom:4px">👤</div><div style="font-size:11px;font-weight:600">Face Module</div><div class="badge green" style="font-size:10px;margin-top:4px">READY</div><div style="font-size:10px;color:var(--text2);margin-top:4px">3 faces stored</div></div>
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center"><div style="font-size:20px;margin-bottom:4px">🔋</div><div style="font-size:11px;font-weight:600">LiPo Battery</div><div class="badge yellow" style="font-size:10px;margin-top:4px">82%</div><div style="font-size:10px;color:var(--text2);margin-top:4px">~18h left</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FACELOCK -->
+<div id="tab-facelock" class="tab">
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-title">Face Scan — Identify Rider</div>
+    <div class="scan-area" id="scanArea">
+      <div class="scan-line"></div>
+      <div style="font-size:40px" id="scanIcon">👤</div>
+      <div style="font-size:13px;color:var(--text2)" id="scanText">Select a profile below then press Scan</div>
+      <div id="scanResult" style="font-size:16px;font-weight:700;display:none;text-align:center"></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="sim-btn green" style="flex:1" onclick="startScan()">🔍 Start Face Scan</button>
+      <button class="sim-btn red" onclick="scanUnknown()">⚠️ Unknown Face</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-title">Authorized Users (3 registered)</div>
+    <div class="face-grid">
+      <div class="face-card active" id="face0" onclick="selectFace(0)">
+        <div class="face-avatar" style="background:rgba(0,212,170,0.2);color:var(--green)">HS</div>
+        <div class="face-name">Harish S</div>
+        <div class="face-role">Owner</div>
+        <div class="badge green" style="margin-top:6px;font-size:9px">ACTIVE</div>
+      </div>
+      <div class="face-card" id="face1" onclick="selectFace(1)">
+        <div class="face-avatar" style="background:rgba(0,153,255,0.2);color:var(--blue)">ME</div>
+        <div class="face-name">Matheswaran E</div>
+        <div class="face-role">Team Member</div>
+        <div class="badge blue" style="margin-top:6px;font-size:9px">ACTIVE</div>
+      </div>
+      <div class="face-card" id="face2" onclick="selectFace(2)">
+        <div class="face-avatar" style="background:rgba(255,165,2,0.2);color:var(--yellow)">ST</div>
+        <div class="face-name">Siva Tharun R</div>
+        <div class="face-role">Team Member</div>
+        <div class="badge yellow" style="margin-top:6px;font-size:9px">ACTIVE</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Face Scan History</div>
+    <div id="faceLog">
+      <div class="log-item"><div class="log-dot" style="background:var(--green)"></div><div class="log-time">09:14</div><div>Harish S — <span style="color:var(--green)">AUTHORIZED</span> — Access granted</div></div>
+      <div class="log-item"><div class="log-dot" style="background:var(--green)"></div><div class="log-time">07:30</div><div>Harish S — <span style="color:var(--green)">AUTHORIZED</span> — Access granted</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ALERTS -->
+<div id="tab-alerts" class="tab">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div style="font-size:13px;font-weight:600">Alert Center</div>
+    <button class="sim-btn gray" style="font-size:11px;padding:5px 10px" onclick="clearAlerts()">Clear All</button>
+  </div>
+  <div id="alertsFeed">
+    <div class="alert-box success"><div class="alert-icon">✅</div><div class="alert-body"><div class="alert-title" style="color:var(--green)">System Armed</div><div class="alert-msg">FaceLock Bike Guard armed successfully. Owner: Harish S</div><div class="alert-time">Today, 09:14 AM</div></div></div>
+    <div class="alert-box info"><div class="alert-icon">📍</div><div class="alert-body"><div class="alert-title" style="color:var(--blue)">GPS Locked</div><div class="alert-msg">Position fixed at 12.9716°N, 80.1594°E — Nandambakkam, Chennai</div><div class="alert-time">Today, 09:12 AM</div></div></div>
+  </div>
+</div>
+
+<!-- TRACKING -->
+<div id="tab-tracking" class="tab">
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-title">Live GPS Tracking — Nandambakkam, Chennai</div>
+    <div class="map-container" style="height:280px">
+      <canvas id="trackCanvas" width="500" height="280" style="width:100%;height:280px"></canvas>
+      <div class="map-overlay">
+        <div style="font-size:11px;margin-bottom:2px">📍 <span id="tLatOv">12.9716°N</span>, <span id="tLonOv">80.1594°E</span></div>
+        <div style="font-size:10px;color:var(--text2)">Speed: <span id="tSpeedOv">0</span> km/h</div>
+      </div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">GPS Details</div>
+      <div class="fin-row"><span class="fin-label">Latitude</span><span class="fin-val" id="tLat">12.9716° N</span></div>
+      <div class="fin-row"><span class="fin-label">Longitude</span><span class="fin-val" id="tLon">80.1594° E</span></div>
+      <div class="fin-row"><span class="fin-label">Accuracy</span><span class="fin-val" style="color:var(--green)">± 1.8 m</span></div>
+      <div class="fin-row"><span class="fin-label">Satellites</span><span class="fin-val">8 / 12</span></div>
+      <div class="fin-row"><span class="fin-label">Speed</span><span class="fin-val" id="tSpeed">0 km/h</span></div>
+      <div class="fin-row"><span class="fin-label">Geofence</span><span class="fin-val"><span class="badge green">INSIDE</span></span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Today's Trip</div>
+      <div class="fin-row"><span class="fin-label">Trip 1</span><span class="fin-val">07:30 — 09:10</span></div>
+      <div class="fin-row"><span class="fin-label">Distance</span><span class="fin-val">12.4 km</span></div>
+      <div class="fin-row"><span class="fin-label">Avg Speed</span><span class="fin-val">28 km/h</span></div>
+      <div class="fin-row"><span class="fin-label">Max Speed</span><span class="fin-val">52 km/h</span></div>
+      <div class="fin-row"><span class="fin-label">Status</span><span class="fin-val"><span class="badge green">PARKED</span></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SMS LOG -->
+<div id="tab-sms" class="tab">
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px">GSM Alert Messages</div>
+  <div id="smsLog"><div style="text-align:center;color:var(--text2);font-size:12px;padding:30px">No alerts sent yet. Run a simulation to generate SMS alerts.</div></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="tab-settings" class="tab">
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-title">Security Settings</div>
+    <div class="gear-row"><div><div style="font-size:13px;font-weight:600">Vibration Alert</div><div style="font-size:11px;color:var(--text2)">Trigger alert on movement</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+    <div class="gear-row"><div><div style="font-size:13px;font-weight:600">Face Recognition Lock</div><div style="font-size:11px;color:var(--text2)">Require face auth to disarm</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+    <div class="gear-row"><div><div style="font-size:13px;font-weight:600">Geofencing</div><div style="font-size:11px;color:var(--text2)">Alert if bike leaves safe zone</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+    <div class="gear-row"><div><div style="font-size:13px;font-weight:600">SMS Alerts</div><div style="font-size:11px;color:var(--text2)">Send SMS via SIM800L</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+    <div class="gear-row"><div><div style="font-size:13px;font-weight:600">Buzzer Alarm</div><div style="font-size:11px;color:var(--text2)">Physical buzzer on tamper</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-title">Financial Overview — Year 1 Projections</div>
+    <div class="fin-row"><span class="fin-label">Unit Price</span><span class="fin-val">₹1,500</span></div>
+    <div class="fin-row"><span class="fin-label">Manufacturing Cost</span><span class="fin-val">₹900</span></div>
+    <div class="fin-row"><span class="fin-label">Gross Margin</span><span class="fin-val" style="color:var(--green)">40%</span></div>
+    <div class="fin-row"><span class="fin-label">Year 1 Revenue</span><span class="fin-val" style="color:var(--green)">₹14.15 Lakh</span></div>
+    <div class="fin-row"><span class="fin-label">Break-Even</span><span class="fin-val" style="color:var(--yellow)">Month 6</span></div>
+    <div class="fin-row"><span class="fin-label">Subscription</span><span class="fin-val">₹99–149/month</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Device Info</div>
+    <div class="fin-row"><span class="fin-label">Device ID</span><span class="fin-val">MSH-BG-2026-001</span></div>
+    <div class="fin-row"><span class="fin-label">Firmware</span><span class="fin-val">v2.0.1</span></div>
+    <div class="fin-row"><span class="fin-label">Owner</span><span class="fin-val">Harish S</span></div>
+    <div class="fin-row"><span class="fin-label">Registered</span><span class="fin-val">May 2026</span></div>
+    <div class="fin-row"><span class="fin-label">Subscription</span><span class="fin-val"><span class="badge green">ACTIVE</span></span></div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script>
+let alertCount=0,selectedFace=0,smsCount=0;
+const faces=[
+  {name:'Harish S',role:'Owner',init:'HS',color:'var(--green)'},
+  {name:'Matheswaran E',role:'Team Member',init:'ME',color:'var(--blue)'},
+  {name:'Siva Tharun R',role:'Team Member',init:'ST',color:'var(--yellow)'}
+];
+
+function showTab(t,btn){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(t==='tracking'){setTimeout(()=>drawMap('trackCanvas'),50);}
+}
+
+function log(msg,color){
+  const c=document.getElementById('simConsole');
+  const d=document.createElement('div');
+  d.style.color=color||'var(--text)';
+  const now=new Date();
+  d.textContent='['+now.toTimeString().slice(0,8)+'] '+msg;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+
+function addActivity(msg,color){
+  const l=document.getElementById('activityLog');
+  const now=new Date();
+  const t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  const d=document.createElement('div');d.className='log-item';
+  d.innerHTML='<div class="log-dot" style="background:'+color+'"></div><div class="log-time">'+t+'</div><div>'+msg+'</div>';
+  l.prepend(d);
+}
+
+function addAlert(type,icon,title,msg,color){
+  alertCount++;
+  document.getElementById('alertCount').textContent=alertCount;
+  const feed=document.getElementById('alertsFeed');
+  const d=document.createElement('div');d.className='alert-box '+type;
+  const t=new Date().toLocaleTimeString();
+  d.innerHTML='<div class="alert-icon">'+icon+'</div><div class="alert-body"><div class="alert-title" style="color:'+color+'">'+title+'</div><div class="alert-msg">'+msg+'</div><div class="alert-time">Today, '+t+'</div></div>';
+  feed.prepend(d);
+}
+
+function addSMS(to,body){
+  smsCount++;
+  const l=document.getElementById('smsLog');
+  if(smsCount===1)l.innerHTML='';
+  const d=document.createElement('div');d.className='sms-card';
+  const t=new Date().toLocaleTimeString();
+  d.innerHTML='<div class="sms-to">📱 To: '+to+'</div><div class="sms-body">'+body+'</div><div class="sms-time">'+t+'</div>';
+  l.prepend(d);
+}
+
+function setVib(val){
+  const pct=Math.min(val/5*100,100);
+  const v=val.toFixed(1)+'g';
+  document.getElementById('vibSensor').textContent=v;
+  document.getElementById('vibSensVal').textContent=v;
+  const bar=document.getElementById('vibBar');
+  bar.style.width=pct+'%';
+  bar.style.background=val>2?'var(--red)':val>0.5?'var(--yellow)':'var(--green)';
+}
+
+function simTheft(){
+  log('⚡ Vibration: 4.7g — Threshold exceeded!','var(--red)');
+  log('🔍 Running face recognition...','var(--yellow)');
+  setTimeout(()=>{
+    log('❌ Face NOT recognized — UNAUTHORIZED','var(--red)');
+    log('📡 Acquiring GPS...','var(--blue)');
+  },700);
+  setTimeout(()=>{
+    log('📍 GPS: 12.9716°N, 80.1594°E','var(--blue)');
+    log('📱 Sending SMS via SIM800L...','var(--accent)');
+    log('🔊 Buzzer ACTIVATED','var(--red)');
+    setVib(4.7);
+    document.getElementById('bikeStatus').textContent='ALERT!';
+    document.getElementById('bikeStatus').className='metric red';
+    document.getElementById('motionSensor').innerHTML='<span class="badge red">DETECTED</span>';
+    document.getElementById('faceAuth').innerHTML='<span class="badge red">UNKNOWN</span>';
+    document.getElementById('topStatus').textContent='⚠️ THEFT ALERT — TRACKING';
+    document.getElementById('mapStatus').textContent='🚨 ALERT — Moving!';
+    addAlert('danger','🚨','Theft Alert!','Unauthorized access detected! GPS: 12.9716°N, 80.1594°E. Buzzer active.','var(--red)');
+    addActivity('🚨 <strong style="color:var(--red)">THEFT ALERT</strong> — Unknown face. SMS sent. Buzzer ON.','var(--red)');
+    addSMS('+91-9XXXXXXXXX','🚨 FACELOCK ALERT!\nTheft detected on your bike!\nLocation: 12.9716°N, 80.1594°E\nMaps: https://maps.google.com/?q=12.9716,80.1594\nTime: '+new Date().toLocaleTimeString()+'\nBuzzer: ON');
+  },1800);
+  setTimeout(()=>log('✅ SMS delivered','var(--green)'),2500);
+}
+
+function simTamper(){
+  log('⚠️ Vibration: 2.1g — Tamper detected','var(--yellow)');
+  setTimeout(()=>{
+    setVib(2.1);
+    document.getElementById('motionSensor').innerHTML='<span class="badge yellow">TAMPER</span>';
+    addAlert('warn','⚠️','Tamper Detected','Someone touched your bike. Vibration: 2.1g.','var(--yellow)');
+    addActivity('⚠️ Tamper detected (2.1g) — face scan triggered','var(--yellow)');
+    addSMS('+91-9XXXXXXXXX','⚠️ TAMPER ALERT!\nSomeone tampered with your bike.\nVibration: 2.1g\nLocation: 12.9716°N, 80.1594°E\nTime: '+new Date().toLocaleTimeString());
+    log('✅ Tamper SMS sent','var(--green)');
+  },800);
+}
+
+function simAuthorized(){
+  log('🔍 Face scan initiated...','var(--blue)');
+  setTimeout(()=>{
+    log('✅ Face RECOGNIZED: Harish S (98.4% match)','var(--green)');
+    log('🔓 System disarming — Authorized rider','var(--green)');
+    setVib(0.2);
+    document.getElementById('bikeStatus').textContent='UNLOCKED';
+    document.getElementById('bikeStatus').className='metric blue';
+    document.getElementById('faceAuth').innerHTML='<span class="badge green">VERIFIED</span>';
+    document.getElementById('motionSensor').innerHTML='<span class="badge green">NONE</span>';
+    document.getElementById('topStatus').textContent='UNLOCKED • Harish S';
+    document.getElementById('mapStatus').textContent='🔓 Unlocked';
+    addAlert('success','✅','Authorized Access','Harish S verified (98.4%). Bike unlocked.','var(--green)');
+    addActivity('✅ <strong>Harish S</strong> verified — Access granted','var(--green)');
+  },1200);
+}
+
+function simGeoFence(){
+  log('📍 Position: 13.0012°N, 80.2101°E','var(--blue)');
+  setTimeout(()=>{
+    log('⚠️ GEOFENCE BREACH! Bike left safe zone (>500m)','var(--yellow)');
+    document.getElementById('tLat').textContent='13.0012° N';
+    document.getElementById('tLon').textContent='80.2101° E';
+    document.getElementById('tSpeed').textContent='34 km/h';
+    addAlert('warn','📍','Geofence Breach!','Bike outside safe zone. Location: 13.0012°N, 80.2101°E. Speed: 34 km/h.','var(--yellow)');
+    addActivity('📍 Geofence breach — Bike 2.3 km from home zone','var(--yellow)');
+    addSMS('+91-9XXXXXXXXX','📍 GEOFENCE BREACH!\nYour bike left the safe zone!\nLocation: 13.0012°N, 80.2101°E\nSpeed: 34 km/h\nTime: '+new Date().toLocaleTimeString());
+    log('✅ Geofence alert delivered','var(--green)');
+  },800);
+}
+
+function simReset(){
+  setVib(0.0);
+  document.getElementById('bikeStatus').textContent='SECURED';
+  document.getElementById('bikeStatus').className='metric green';
+  document.getElementById('motionSensor').innerHTML='<span class="badge green">NONE</span>';
+  document.getElementById('faceAuth').innerHTML='<span class="badge green">VERIFIED</span>';
+  document.getElementById('topStatus').textContent='ARMED • GPS LOCKED';
+  document.getElementById('mapStatus').textContent='📍 Parked • Secured';
+  document.getElementById('tLat').textContent='12.9716° N';
+  document.getElementById('tLon').textContent='80.1594° E';
+  document.getElementById('tSpeed').textContent='0 km/h';
+  log('🔄 System reset — All sensors nominal','var(--green)');
+  log('🛡 ARMED. Waiting for events.','var(--accent)');
+  addActivity('🔄 System reset — ARMED','var(--green)');
+}
+
+function selectFace(i){
+  selectedFace=i;
+  document.querySelectorAll('.face-card').forEach((c,j)=>c.classList.toggle('active',i===j));
+}
+
+function startScan(){
+  const area=document.getElementById('scanArea');
+  const icon=document.getElementById('scanIcon');
+  const text=document.getElementById('scanText');
+  const result=document.getElementById('scanResult');
+  area.classList.add('scanning');
+  icon.textContent='📸';text.textContent='Scanning... please look at camera';result.style.display='none';
+  setTimeout(()=>{
+    area.classList.remove('scanning');
+    const f=faces[selectedFace];
+    icon.textContent='✅';text.style.display='none';result.style.display='block';
+    result.innerHTML='<span style="color:var(--green)">'+f.name+'</span><br><span style="font-size:12px;color:var(--text2);font-weight:400">AUTHORIZED • 98.4% confidence</span>';
+    const fl=document.getElementById('faceLog');
+    const t=new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0');
+    const d=document.createElement('div');d.className='log-item';
+    d.innerHTML='<div class="log-dot" style="background:var(--green)"></div><div class="log-time">'+t+'</div><div>'+f.name+' — <span style="color:var(--green)">AUTHORIZED</span> — Access granted</div>';
+    fl.prepend(d);
+  },2000);
+}
+
+function scanUnknown(){
+  const area=document.getElementById('scanArea');
+  const icon=document.getElementById('scanIcon');
+  const text=document.getElementById('scanText');
+  const result=document.getElementById('scanResult');
+  area.classList.add('scanning');
+  icon.textContent='📸';text.textContent='Scanning unknown face...';result.style.display='none';
+  setTimeout(()=>{
+    area.classList.remove('scanning');
+    icon.textContent='❌';text.style.display='none';result.style.display='block';
+    result.innerHTML='<span style="color:var(--red)">UNKNOWN PERSON</span><br><span style="font-size:12px;color:var(--text2);font-weight:400">UNAUTHORIZED — Alert triggered!</span>';
+    simTheft();
+    const fl=document.getElementById('faceLog');
+    const t=new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0');
+    const d=document.createElement('div');d.className='log-item';
+    d.innerHTML='<div class="log-dot" style="background:var(--red)"></div><div class="log-time">'+t+'</div><div><span style="color:var(--red)">UNKNOWN FACE</span> — Unauthorized — Alert sent!</div>';
+    fl.prepend(d);
+  },2000);
+}
+
+function clearAlerts(){
+  document.getElementById('alertsFeed').innerHTML='<div style="text-align:center;color:var(--text2);font-size:12px;padding:30px">No alerts</div>';
+  alertCount=0;document.getElementById('alertCount').textContent='0';
+}
+
+function drawMap(id){
+  const c=document.getElementById(id);if(!c)return;
+  const ctx=c.getContext('2d');
+  const w=c.width,h=c.height;
+  ctx.fillStyle='#0d1626';ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle='#1e2d44';ctx.lineWidth=1;
+  for(let x=0;x<w;x+=30){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(let y=0;y<h;y+=30){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  const roads=[[0,80,w,80],[0,140,w,140],[120,0,120,h],[250,0,250,h],[0,200,w,200]];
+  ctx.strokeStyle='#2a3f5f';ctx.lineWidth=10;
+  roads.forEach(r=>{ctx.beginPath();ctx.moveTo(r[0],r[1]);ctx.lineTo(r[2],r[3]);ctx.stroke();});
+  ctx.strokeStyle='#1e2d44';ctx.lineWidth=1;
+  roads.forEach(r=>{ctx.beginPath();ctx.moveTo(r[0],r[1]);ctx.lineTo(r[2],r[3]);ctx.stroke();});
+  [[20,20,90,50],[140,20,100,50],[260,20,80,50],[20,100,90,30],[140,100,100,30],[260,100,80,30],[20,160,90,30],[140,160,100,30],[260,160,80,30]].forEach(b=>{
+    ctx.fillStyle='#162032';ctx.strokeStyle='#2a3a55';ctx.lineWidth=0.5;
+    ctx.fillRect(b[0],b[1],b[2],b[3]);ctx.strokeRect(b[0],b[1],b[2],b[3]);
+  });
+  const bx=200,by=id==='trackCanvas'?140:110;
+  ctx.beginPath();ctx.arc(bx,by,20,0,Math.PI*2);
+  ctx.fillStyle='rgba(0,212,170,0.15)';ctx.fill();
+  ctx.strokeStyle='#00d4aa';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.beginPath();ctx.arc(bx,by,7,0,Math.PI*2);
+  ctx.fillStyle='#00d4aa';ctx.fill();
+  ctx.fillStyle='#00d4aa';ctx.font='bold 10px Segoe UI';ctx.textAlign='center';
+  ctx.fillText('BIKE',bx,by-26);
+  ctx.fillStyle='rgba(0,212,170,0.08)';
+  ctx.beginPath();ctx.arc(bx,by,65,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(0,212,170,0.3)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+  ctx.beginPath();ctx.arc(bx,by,65,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#8fa3c0';ctx.font='9px Segoe UI';ctx.textAlign='center';
+  ctx.fillText('Nandambakkam, Chennai',bx,by+35);
+}
+
+window.onload=function(){
+  drawMap('mapCanvas');
+  setInterval(()=>{
+    const noise=(Math.random()*0.1).toFixed(2);
+    if(parseFloat(document.getElementById('vibSensor').textContent)<=0.15){
+      document.getElementById('vibSensor').textContent=noise+'g';
+      document.getElementById('vibSensVal').textContent=noise+'g';
+    }
+    const gsm=['-71','-73','-74','-72','-70'];
+    document.getElementById('gsmSig').textContent=gsm[Math.floor(Math.random()*gsm.length)]+' dBm';
+    document.getElementById('tempVal').textContent=(33+Math.floor(Math.random()*3))+'°C';
+  },3000);
+};
+</script>
+</body>
+</html>
